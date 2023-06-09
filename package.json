@@ -1,0 +1,22 @@
+{
+  "name": "ls",
+  "version": "1.0.0",
+  "description": "Export Github Data",
+  "main": "index.js",
+  "author": "JeremiahC",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.22.1",
+    "@babel/node": "^7.22.1",
+    "@babel/preset-env": "^7.22.4",
+    "@babel/preset-modules": "^0.1.5"
+  },
+  "scripts": {
+    "export": "babel-node index.js"
+  }
+}
