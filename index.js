@@ -1,16 +1,16 @@
+require('dotenv').config();
 const axios = require('axios');
 
-// Set GitHub username and personal access token
-const GITHUB_USERNAME = 'jeremiahC';
-const GITHUB_TOKEN = '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';
+const {
+  GITHUB_USERNAME,
+  GITHUB_TOKEN,
+  GITHUB_CONTRIBUTORS,
+  REPO_OWNER,
+  REPO_NAME,
+} = process.env;
 
-// Set repository owner and name
-const REPO_OWNER = 'Spacee-Inc';
-const REPO_NAME = 'room';
+const users = GITHUB_CONTRIBUTORS.split(',');
 
-// Set desired GitHub usernames for filtering
-// const FILTER_USERS = ['karlolee50', 'Teraaay', 'Dixtir', 'escbooster12-dev', 'jeraldechavia', 'kdacudag', 'louisepujante', 'chevyB'];
-const FILTER_USERS = ['gbrlhnz']
 
 // Set output file name
 const OUTPUT_FILE = 'pull_requests.csv';
@@ -19,11 +19,12 @@ const OUTPUT_FILE = 'pull_requests.csv';
 async function fetchPullRequests() {
   let pullRequests = [];
 
-  for (const user of FILTER_USERS) {
+  for (const user of users) {
     let page = 1;
     let response;
     do {
-      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls?state=all&page=${page}&per_page=100&creator=${user}`;
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls?state=all&page=${page}&per_page=100`;
+
       try {
         response = await axios.get(url, {
           auth: {
@@ -31,6 +32,8 @@ async function fetchPullRequests() {
             password: GITHUB_TOKEN,
           },
         });
+
+        console.log('Fetching data...')
 
         const prs = response.data.filter(pr => pr.user.login === user).map(async pr => {
           const [commitsResponse, reviewCommentsResponse, commentsResponse] = await axios.all([
@@ -62,12 +65,16 @@ async function fetchPullRequests() {
     } while (response.headers.link && response.headers.link.includes('rel="next"'));
   }
 
+  console.log('Prepare to export to csv.')
+
   return pullRequests;
 }
 
 // Function to export Pull Request data as CSV
 function exportToCSV(pullRequests) {
   let csvContent = 'Number,Title,User,Commits,Code Comments, Normal Comments,URL\n';
+
+  console.log('Starting to export to csv file.')
 
   for (const pr of pullRequests) {
     const row = [
