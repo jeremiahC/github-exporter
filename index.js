@@ -14,6 +14,14 @@ const users = GITHUB_CONTRIBUTORS.split(',');
 
 // Set output file name
 const OUTPUT_FILE = 'pull_requests.csv';
+const countQAcomments = (comments) => {
+  const totalQAComments = comments.filter((comment) => {
+    const regex = /^Comment|^## Comment/g;
+    return regex.test(comment.body)
+  }).length
+
+  return totalQAComments
+}
 
 // Function to fetch Pull Request data
 async function fetchPullRequests() {
@@ -42,6 +50,8 @@ async function fetchPullRequests() {
             axios.get(pr.comments_url, { auth: { username: GITHUB_USERNAME, password: GITHUB_TOKEN } })
           ]);
 
+
+
           return {
             number: pr.number,
             title: pr.title,
@@ -51,7 +61,7 @@ async function fetchPullRequests() {
             commitCount: commitsResponse.data.length,
             codeCommentCount: reviewCommentsResponse.data.length,
             // TODO: Make function that only count the QA comments
-            normalCommentCount: commentsResponse.data.length,
+            normalCommentCount: countQAcomments(commentsResponse.data),
             url: pr.html_url
           };
         });
